@@ -39,40 +39,34 @@
         fetch('https://paraglidable.com/apps/api/get.php?key=35b2283df6154800&format=JSON&version=1')
             .then(response => response.json())
             .then(jsonData => {
-                // Define static colors for each location
-                var locationColors = ['#FF5733', '#33FF57', '#3357FF']; // Add more colors as needed
-
-                // Extracting labels (dates) and datasets (locations) from JSON
+                // Extracting labels (dates) from JSON
                 var labels = Object.keys(jsonData);
-                var datasets = [];
 
                 // Iterate over each location
                 for (var i = 0; i < jsonData[labels[0]].length; i++) {
-                    var locationDataFly = {
-                        label: jsonData[labels[0]][i].name + ' - Fly',
-                        data: [],
-                        fill: false,
-                        borderColor: locationColors[i % locationColors.length] // Use static colors
-                    };
+                    // Create chart for "fly" data
+                    createChart(i, 'fly', 'blue');
 
-                    var locationDataTakeoff = {
-                        label: jsonData[labels[0]][i].name + ' - Takeoff',
+                    // Create chart for "takeoff" data
+                    createChart(i, 'takeoff', 'red');
+                }
+
+                // Function to create chart
+                function createChart(index, type, color) {
+                    var locationData = {
+                        label: jsonData[labels[0]][index].name + ' - ' + type.charAt(0).toUpperCase() + type.slice(1),
                         data: [],
                         fill: false,
-                        borderColor: locationColors[i % locationColors.length] // Use the same color as fly for consistency
+                        borderColor: color // Set color
                     };
 
                     // Iterate over each date
                     for (var date in jsonData) {
-                        locationDataFly.data.push(jsonData[date][i].forecast.fly); // Add fly data
-                        locationDataTakeoff.data.push(jsonData[date][i].forecast.takeoff); // Add takeoff data
+                        locationData.data.push(jsonData[date][index].forecast[type]); // Add data
                     }
 
-                    datasets.push(locationDataFly);
-                    datasets.push(locationDataTakeoff);
-
                     // Create chart for each location
-                    var ctx = document.getElementById('forecastChart' + i).getContext('2d');
+                    var ctx = document.getElementById('forecastChart' + index).getContext('2d');
                     var chart = new Chart(ctx, {
                         type: 'line',
                         data: {
@@ -81,14 +75,14 @@
                                 var dayOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dateObj.getDay()];
                                 return `${date} (${dayOfWeek})`;
                             }),
-                            datasets: [locationDataFly, locationDataTakeoff]
+                            datasets: [locationData]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false, // Allow the chart to adjust both vertically and horizontally
                             title: {
                                 display: true,
-                                text: 'Forecast Visualization - ' + jsonData[labels[0]][i].name
+                                text: 'Forecast Visualization - ' + jsonData[labels[0]][index].name
                             },
                             scales: {
                                 yAxes: [{

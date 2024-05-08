@@ -39,89 +39,53 @@
         fetch('https://paraglidable.com/apps/api/get.php?key=35b2283df6154800&format=JSON&version=1')
             .then(response => response.json())
             .then(jsonData => {
-                // Define colors
-                var flyColor = 'blue';
-                var takeoffColor = 'red';
+                // Define static colors for each location
+                var locationColors = ['#FF5733', '#33FF57', '#3357FF']; // Add more colors as needed
 
                 // Extracting labels (dates) and datasets (locations) from JSON
                 var labels = Object.keys(jsonData);
 
                 // Iterate over each location
                 for (var i = 0; i < jsonData[labels[0]].length; i++) {
-                    // Create datasets for fly and takeoff
-                    var flyData = {
+                    var locationDataFly = {
                         label: jsonData[labels[0]][i].name + ' - Fly',
                         data: [],
                         fill: false,
-                        borderColor: flyColor
+                        borderColor: locationColors[i % locationColors.length], // Use static colors
+                        type: 'line'
                     };
 
-                    var takeoffData = {
+                    var locationDataTakeoff = {
                         label: jsonData[labels[0]][i].name + ' - Takeoff',
                         data: [],
-                        fill: false,
-                        borderColor: takeoffColor
+                        backgroundColor: locationColors[i % locationColors.length], // Use static colors
+                        type: 'bar'
                     };
 
                     // Iterate over each date
                     for (var date in jsonData) {
-                        flyData.data.push(jsonData[date][i].forecast.fly); // Add fly data
-                        takeoffData.data.push(jsonData[date][i].forecast.takeoff); // Add takeoff data
+                        locationDataFly.data.push(jsonData[date][i].forecast.fly); // Add fly data
+                        locationDataTakeoff.data.push(jsonData[date][i].forecast.takeoff); // Add takeoff data
                     }
 
                     // Create chart for each location
-                    var ctxFly = document.getElementById('forecastChart' + i).getContext('2d');
-                    new Chart(ctxFly, {
-                        type: 'line',
+                    var ctx = document.getElementById('forecastChart' + i).getContext('2d');
+                    var chart = new Chart(ctx, {
+                        type: 'bar',
                         data: {
                             labels: labels.map(date => {
                                 var dateObj = new Date(date);
                                 var dayOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dateObj.getDay()];
                                 return `${date} (${dayOfWeek})`;
                             }),
-                            datasets: [flyData]
+                            datasets: [locationDataFly, locationDataTakeoff]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false, // Allow the chart to adjust both vertically and horizontally
                             title: {
                                 display: true,
-                                text: 'Forecast Visualization - ' + jsonData[labels[0]][i].name + ' - Fly'
-                            },
-                            scales: {
-                                yAxes: [{
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'Forecast Value'
-                                    }
-                                }],
-                                xAxes: [{
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'Date'
-                                    }
-                                }]
-                            }
-                        }
-                    });
-
-                    var ctxTakeoff = document.getElementById('forecastChart' + i).getContext('2d');
-                    new Chart(ctxTakeoff, {
-                        type: 'line',
-                        data: {
-                            labels: labels.map(date => {
-                                var dateObj = new Date(date);
-                                var dayOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dateObj.getDay()];
-                                return `${date} (${dayOfWeek})`;
-                            }),
-                            datasets: [takeoffData]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false, // Allow the chart to adjust both vertically and horizontally
-                            title: {
-                                display: true,
-                                text: 'Forecast Visualization - ' + jsonData[labels[0]][i].name + ' - Takeoff'
+                                text: 'Forecast Visualization - ' + jsonData[labels[0]][i].name
                             },
                             scales: {
                                 yAxes: [{

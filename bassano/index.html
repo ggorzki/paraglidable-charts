@@ -39,9 +39,6 @@
         fetch('https://paraglidable.com/apps/api/get.php?key=35b2283df6154800&format=JSON&version=1')
             .then(response => response.json())
             .then(jsonData => {
-                // Define static colors for each location
-                var locationColors = ['#FF5733', '#33FF57', '#3357FF']; // Add more colors as needed
-
                 // Extracting labels (dates) and datasets (locations) from JSON
                 var labels = Object.keys(jsonData);
 
@@ -50,22 +47,34 @@
                     var locationDataFly = {
                         label: jsonData[labels[0]][i].name + ' - Fly',
                         data: [],
-                        fill: false,
-                        borderColor: locationColors[i % locationColors.length], // Use static colors
-                        type: 'line'
+                        backgroundColor: 'rgba(0, 0, 255, 0.5)', // Set fly data color to blue with some transparency
+                        type: 'bar',
+                        stack: 'Stack 0' // Set stack to distinguish between datasets
+                    };
+
+                    var locationDataXC = {
+                        label: jsonData[labels[0]][i].name + ' - XC',
+                        data: [],
+                        backgroundColor: 'rgba(0, 255, 0, 0.5)', // Set XC data color to green with some transparency
+                        type: 'bar',
+                        stack: 'Stack 0' // Set stack to distinguish between datasets
                     };
 
                     var locationDataTakeoff = {
                         label: jsonData[labels[0]][i].name + ' - Takeoff',
                         data: [],
-                        backgroundColor: locationColors[i % locationColors.length], // Use static colors
-                        type: 'bar'
+                        backgroundColor: 'rgba(255, 0, 0, 0.9)', // Set Takeoff data color to red with some transparency
+                        type: 'line'
                     };
 
                     // Iterate over each date
                     for (var date in jsonData) {
-                        locationDataFly.data.push(jsonData[date][i].forecast.fly); // Add fly data
-                        locationDataTakeoff.data.push(jsonData[date][i].forecast.takeoff); // Add takeoff data
+                        var flyData = jsonData[date][i].forecast.fly;
+                        var xcData = jsonData[date][i].forecast.XC;
+                        var takeoffData = jsonData[date][i].forecast.takeoff;
+                        locationDataFly.data.push(flyData - xcData); // Add fly data
+                        locationDataXC.data.push(xcData); // Add difference between fly and XC data
+                        locationDataTakeoff.data.push(takeoffData); // Add takeoff data
                     }
 
                     // Create chart for each location
@@ -78,7 +87,7 @@
                                 var dayOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dateObj.getDay()];
                                 return `${date} (${dayOfWeek})`;
                             }),
-                            datasets: [locationDataFly, locationDataTakeoff]
+                            datasets: [locationDataXC, locationDataFly, locationDataTakeoff]
                         },
                         options: {
                             responsive: true,
@@ -89,12 +98,14 @@
                             },
                             scales: {
                                 yAxes: [{
+                                    stacked: true, // Stack bars on the y-axis
                                     scaleLabel: {
                                         display: true,
                                         labelString: 'Forecast Value'
                                     }
                                 }],
                                 xAxes: [{
+                                    stacked: true, // Stack bars on the x-axis
                                     scaleLabel: {
                                         display: true,
                                         labelString: 'Date'

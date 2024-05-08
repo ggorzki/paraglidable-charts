@@ -48,19 +48,28 @@
 
                 // Iterate over each location
                 for (var i = 0; i < jsonData[labels[0]].length; i++) {
-                    var locationData = {
-                        label: jsonData[labels[0]][i].name,
+                    var locationDataFly = {
+                        label: jsonData[labels[0]][i].name + ' - Fly',
                         data: [],
                         fill: false,
                         borderColor: locationColors[i % locationColors.length] // Use static colors
                     };
 
+                    var locationDataTakeoff = {
+                        label: jsonData[labels[0]][i].name + ' - Takeoff',
+                        data: [],
+                        fill: false,
+                        borderColor: locationColors[i % locationColors.length] // Use the same color as fly for consistency
+                    };
+
                     // Iterate over each date
                     for (var date in jsonData) {
-                        locationData.data.push(jsonData[date][i].forecast.fly); // Change to forecast type (fly, XC, takeoff) you want to visualize
+                        locationDataFly.data.push(jsonData[date][i].forecast.fly); // Add fly data
+                        locationDataTakeoff.data.push(jsonData[date][i].forecast.takeoff); // Add takeoff data
                     }
 
-                    datasets.push(locationData);
+                    datasets.push(locationDataFly);
+                    datasets.push(locationDataTakeoff);
 
                     // Create chart for each location
                     var ctx = document.getElementById('forecastChart' + i).getContext('2d');
@@ -72,7 +81,7 @@
                                 var dayOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dateObj.getDay()];
                                 return `${date} (${dayOfWeek})`;
                             }),
-                            datasets: [locationData]
+                            datasets: [locationDataFly, locationDataTakeoff]
                         },
                         options: {
                             responsive: true,

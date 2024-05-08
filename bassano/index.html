@@ -25,13 +25,16 @@
 </head>
 <body>
     <div class="chartContainer">
-        <canvas id="forecastChart0"></canvas>
+        <canvas id="flyChart0"></canvas>
+        <canvas id="takeoffChart0"></canvas>
     </div>
     <div class="chartContainer">
-        <canvas id="forecastChart1"></canvas>
+        <canvas id="flyChart1"></canvas>
+        <canvas id="takeoffChart1"></canvas>
     </div>
     <div class="chartContainer">
-        <canvas id="forecastChart2"></canvas>
+        <canvas id="flyChart2"></canvas>
+        <canvas id="takeoffChart2"></canvas>
     </div>
     <!-- Add more divs with canvas elements for additional locations -->
     <script>
@@ -66,7 +69,7 @@
                     }
 
                     // Create chart for each location
-                    var ctx = document.getElementById('forecastChart' + index).getContext('2d');
+                    var ctx = document.getElementById(type + 'Chart' + index).getContext('2d');
                     var chart = new Chart(ctx, {
                         type: 'line',
                         data: {

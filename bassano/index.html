@@ -52,6 +52,13 @@
                     datasets.push(locationData);
                 }
 
+                // Modify labels to include the date and day of the week
+                labels = labels.map(date => {
+                    var dateObj = new Date(date);
+                    var dayOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dateObj.getDay()];
+                    return `${date} (${dayOfWeek})`;
+                });
+
                 // Create chart
                 var ctx = document.getElementById('forecastChart').getContext('2d');
                 var chart = new Chart(ctx, {

@@ -61,18 +61,27 @@
                     var locationDataTakeoff = {
                         label: jsonData[labels[0]][i].name + ' - Takeoff',
                         data: [],
+                        borderColor: 'rgba(255, 0, 0, 0.9)', // Set Takeoff data color to red with some transparency
                         backgroundColor: 'rgba(255, 0, 0, 0.9)', // Set Takeoff data color to red with some transparency
-                        type: 'line'
+                        type: 'line',
+                        fill: false
                     };
 
                     // Iterate over each date
-                    for (var date in jsonData) {
-                        var flyData = jsonData[date][i].forecast.fly;
-                        var xcData = jsonData[date][i].forecast.XC;
-                        var takeoffData = jsonData[date][i].forecast.takeoff;
-                        locationDataFly.data.push(flyData - xcData); // Add fly data
-                        locationDataXC.data.push(xcData); // Add difference between fly and XC data
-                        locationDataTakeoff.data.push(takeoffData); // Add takeoff data
+                    for (var date of labels) {
+                        try {
+                            var flyData = jsonData[date][i].forecast.fly;
+                            var xcData = jsonData[date][i].forecast.XC;
+                            var takeoffData = jsonData[date][i].forecast.takeoff;
+                            locationDataFly.data.push(flyData - xcData); // Add fly data
+                            locationDataXC.data.push(xcData); // Add difference between fly and XC data
+                            locationDataTakeoff.data.push(takeoffData); // Add takeoff data
+                        } catch (error) {
+                            console.warn(`Data missing for location index ${i} on date ${date}. Skipping this entry.`);
+                            locationDataFly.data.push(null); // Maintain alignment in data array
+                            locationDataXC.data.push(null); // Maintain alignment in data array
+                            locationDataTakeoff.data.push(null); // Maintain alignment in data array
+                        }
                     }
 
                     // Create chart for each location
